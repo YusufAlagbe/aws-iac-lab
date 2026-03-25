@@ -65,15 +65,17 @@ aws configure
 
 ```
 aws-iac-lab/
-├── aws-iac-terraform-yusuf.tf   # All Terraform config (provider, variables,
-│                                #   networking, security groups, EC2, RDS, outputs)
-├── terraform.tfvars   # Variable values (gitignored if secrets present)
-├── .gitignore         # Ignore state, secrets, IDE files
+├── main.tf            # Provider configuration and optional remote-state backend
+├── network.tf         # VPC, subnets, route tables, internet gateway, NAT gateway
+├── security.tf        # Security groups — 22/80/443 to EC2; DB port from EC2 SG only
+├── ec2.tf             # Two EC2 instances sharing the same AMI (public subnet)
+├── rds.tf             # PostgreSQL RDS instance via DB subnet group (private subnet)
+├── variables.tf       # All input variable declarations
+├── outputs.tf         # Useful outputs printed after apply
+├── terraform.tfvars   # Variable values (gitignored — contains secrets)
+├── .gitignore         # Ignore state files, secrets, IDE files
 └── README.md          # This file
 ```
-
-`aws-iac-terraform-yusuf.tf` is organised into clearly labelled sections: Terraform & Provider,
-Variables, Networking, Security Groups, EC2 Instances, RDS Instance, and Outputs.
 
 ---
 
