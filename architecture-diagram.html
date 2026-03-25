@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>AWS IaC Lab — Architecture Diagram</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { background: #0d1117; display: flex; justify-content: center; align-items: center; min-height: 100vh; font-family: 'Segoe UI', Arial, sans-serif; }
+  svg { max-width: 1100px; width: 100%; height: auto; }
+  .title { font-size: 22px; font-weight: 700; fill: #fff; }
+  .subtitle { font-size: 13px; fill: #8b949e; }
+  .cloud-bg { fill: #161b22; stroke: #30363d; stroke-width: 2; rx: 16; }
+  .vpc-bg { fill: #1a1f2b; stroke: #58a6ff; stroke-width: 2; stroke-dasharray: 8 4; rx: 12; }
+  .vpc-label { font-size: 15px; font-weight: 700; fill: #58a6ff; }
+  .subnet-public { fill: rgba(35,134,54,0.12); stroke: #238636; stroke-width: 1.5; rx: 10; }
+  .subnet-private { fill: rgba(56,58,201,0.10); stroke: #6e7681; stroke-width: 1.5; rx: 10; }
+  .subnet-label { font-size: 12px; font-weight: 600; }
+  .subnet-label-pub { fill: #238636; }
+  .subnet-label-priv { fill: #8b949e; }
+  .subnet-cidr { font-size: 10px; fill: #6e7681; }
+  .resource-box { rx: 8; stroke-width: 1.5; }
+  .ec2-box { fill: #1c2333; stroke: #f0883e; }
+  .rds-box { fill: #1c2333; stroke: #a371f7; }
+  .gw-box { fill: #1c2333; stroke: #58a6ff; }
+  .nat-box { fill: #1c2333; stroke: #3fb950; }
+  .sg-box { fill: transparent; stroke: #f85149; stroke-width: 1; stroke-dasharray: 4 3; rx: 6; }
+  .resource-icon { font-size: 22px; }
+  .resource-name { font-size: 12px; font-weight: 600; fill: #e6edf3; }
+  .resource-detail { font-size: 10px; fill: #8b949e; }
+  .sg-label { font-size: 10px; fill: #f85149; font-weight: 600; }
+  .arrow { stroke-width: 2; fill: none; marker-end: url(#arrowhead); }
+  .arrow-blue { stroke: #58a6ff; }
+  .arrow-green { stroke: #3fb950; }
+  .arrow-orange { stroke: #f0883e; }
+  .arrow-purple { stroke: #a371f7; }
+  .arrow-red { stroke: #f85149; stroke-dasharray: 5 3; }
+  .legend-text { font-size: 11px; fill: #8b949e; }
+  .legend-title { font-size: 12px; fill: #e6edf3; font-weight: 600; }
+  .port-label { font-size: 9px; font-weight: 700; fill: #f85149; }
+  .internet-label { font-size: 13px; fill: #e6edf3; font-weight: 600; }
+</style>
+</head>
+<body>
+<svg viewBox="0 0 1060 720" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <marker id="arrowhead" markerWidth="8" markerHeight="6" refX="8" refY="3" orient="auto">
+      <polygon points="0 0, 8 3, 0 6" fill="#58a6ff"/>
+    </marker>
+    <marker id="arrowhead-green" markerWidth="8" markerHeight="6" refX="8" refY="3" orient="auto">
+      <polygon points="0 0, 8 3, 0 6" fill="#3fb950"/>
+    </marker>
+    <marker id="arrowhead-orange" markerWidth="8" markerHeight="6" refX="8" refY="3" orient="auto">
+      <polygon points="0 0, 8 3, 0 6" fill="#f0883e"/>
+    </marker>
+    <marker id="arrowhead-purple" markerWidth="8" markerHeight="6" refX="8" refY="3" orient="auto">
+      <polygon points="0 0, 8 3, 0 6" fill="#a371f7"/>
+    </marker>
+    <marker id="arrowhead-red" markerWidth="8" markerHeight="6" refX="8" refY="3" orient="auto">
+      <polygon points="0 0, 8 3, 0 6" fill="#f85149"/>
+    </marker>
+  </defs>
+
+  <!-- Title -->
+  <text x="530" y="35" text-anchor="middle" class="title">AWS Multi-Tier Architecture — Terraform IaC Lab</text>
+  <text x="530" y="55" text-anchor="middle" class="subtitle">VPC with public &amp; private subnets · 2 × EC2 · 1 × RDS PostgreSQL · NAT Gateway</text>
+
+  <!-- AWS Cloud box -->
+  <rect x="140" y="70" width="880" height="540" class="cloud-bg"/>
+  <text x="160" y="95" font-size="13" fill="#6e7681" font-weight="600">☁ AWS Cloud — us-east-1</text>
+
+  <!-- VPC box -->
+  <rect x="170" y="110" width="820" height="480" class="vpc-bg"/>
+  <text x="195" y="135" class="vpc-label">VPC  10.0.0.0/16</text>
+
+  <!-- Internet -->
+  <text x="70" y="240" text-anchor="middle" class="internet-label">🌐</text>
+  <text x="70" y="258" text-anchor="middle" class="internet-label">Internet</text>
+
+  <!-- Internet Gateway -->
+  <rect x="195" y="150" width="130" height="60" class="resource-box gw-box"/>
+  <text x="260" y="175" text-anchor="middle" class="resource-icon">🚪</text>
+  <text x="260" y="195" text-anchor="middle" class="resource-name">Internet Gateway</text>
+
+  <!-- Arrow: Internet to IGW -->
+  <path d="M 110 245 L 185 200" class="arrow arrow-blue" marker-end="url(#arrowhead)"/>
+
+  <!-- ============ PUBLIC SUBNET ============ -->
+  <rect x="195" y="230" width="530" height="180" class="subnet-public"/>
+  <text x="210" y="252" class="subnet-label subnet-label-pub">Public Subnet</text>
+  <text x="210" y="266" class="subnet-cidr">10.0.1.0/24 · AZ us-east-1a</text>
+
+  <!-- EC2 SG box -->
+  <rect x="210" y="280" width="340" height="115" class="sg-box"/>
+  <text x="220" y="296" class="sg-label">🔒 EC2 Security Group — Ports 22, 80, 443</text>
+
+  <!-- EC2 Instance 1 -->
+  <rect x="225" y="305" width="150" height="75" class="resource-box ec2-box"/>
+  <text x="300" y="335" text-anchor="middle" class="resource-icon">🖥️</text>
+  <text x="300" y="355" text-anchor="middle" class="resource-name">EC2 #1 (Web)</text>
+  <text x="300" y="370" text-anchor="middle" class="resource-detail">t3.micro · Amazon Linux 2023</text>
+
+  <!-- EC2 Instance 2 -->
+  <rect x="390" y="305" width="150" height="75" class="resource-box ec2-box"/>
+  <text x="465" y="335" text-anchor="middle" class="resource-icon">🖥️</text>
+  <text x="465" y="355" text-anchor="middle" class="resource-name">EC2 #2 (Web)</text>
+  <text x="465" y="370" text-anchor="middle" class="resource-detail">t3.micro · Amazon Linux 2023</text>
+
+  <!-- NAT Gateway -->
+  <rect x="580" y="290" width="130" height="60" class="resource-box nat-box"/>
+  <text x="645" y="315" text-anchor="middle" class="resource-icon">🔀</text>
+  <text x="645" y="335" text-anchor="middle" class="resource-name">NAT Gateway</text>
+
+  <!-- Arrow: IGW to public subnet area -->
+  <path d="M 260 210 L 260 230" class="arrow arrow-blue" marker-end="url(#arrowhead)"/>
+
+  <!-- Arrow: IGW to EC2s (through subnet) -->
+  <path d="M 260 230 L 300 305" class="arrow arrow-orange" marker-end="url(#arrowhead-orange)"/>
+  <path d="M 350 230 L 465 305" class="arrow arrow-orange" marker-end="url(#arrowhead-orange)"/>
+
+  <!-- ============ PRIVATE SUBNETS ============ -->
+  <rect x="195" y="430" width="780" height="145" class="subnet-private"/>
+  <text x="210" y="452" class="subnet-label subnet-label-priv">Private Subnets</text>
+  <text x="210" y="466" class="subnet-cidr">10.0.10.0/24 (AZ-a) · 10.0.11.0/24 (AZ-b)</text>
+
+  <!-- RDS SG box -->
+  <rect x="355" y="475" width="270" height="85" class="sg-box"/>
+  <text x="365" y="492" class="sg-label">🔒 RDS Security Group — Port 5432 from EC2 SG only</text>
+
+  <!-- RDS Instance -->
+  <rect x="390" y="500" width="200" height="50" class="resource-box rds-box"/>
+  <text x="490" y="522" text-anchor="middle" class="resource-icon">🗄️</text>
+  <text x="523" y="522" text-anchor="middle" class="resource-name">RDS PostgreSQL 15</text>
+  <text x="490" y="540" text-anchor="middle" class="resource-detail">db.t3.micro · Not publicly accessible</text>
+
+  <!-- Arrow: NAT GW to private subnet -->
+  <path d="M 645 350 L 645 430" class="arrow arrow-green" marker-end="url(#arrowhead-green)"/>
+
+  <!-- Arrow: EC2 to RDS (through SG) -->
+  <path d="M 300 380 L 420 500" class="arrow arrow-purple" stroke-dasharray="5 3" marker-end="url(#arrowhead-purple)"/>
+  <path d="M 465 380 L 490 500" class="arrow arrow-purple" stroke-dasharray="5 3" marker-end="url(#arrowhead-purple)"/>
+
+  <!-- Port labels on arrows -->
+  <text x="340" y="445" class="port-label">:5432</text>
+
+  <!-- Route tables -->
+  <rect x="760" y="155" width="210" height="55" class="resource-box gw-box" style="stroke:#6e7681"/>
+  <text x="865" y="177" text-anchor="middle" class="resource-name">📋 Public Route Table</text>
+  <text x="865" y="195" text-anchor="middle" class="resource-detail">0.0.0.0/0 → Internet Gateway</text>
+
+  <rect x="760" y="290" width="210" height="55" class="resource-box gw-box" style="stroke:#6e7681"/>
+  <text x="865" y="312" text-anchor="middle" class="resource-name">📋 Private Route Table</text>
+  <text x="865" y="330" text-anchor="middle" class="resource-detail">0.0.0.0/0 → NAT Gateway</text>
+
+  <!-- Elastic IP label near NAT -->
+  <text x="645" y="365" text-anchor="middle" class="resource-detail">Elastic IP attached</text>
+
+  <!-- ============ LEGEND ============ -->
+  <rect x="195" y="620" width="780" height="55" rx="8" fill="#161b22" stroke="#30363d" stroke-width="1"/>
+  <text x="215" y="642" class="legend-title">Legend:</text>
+
+  <line x1="280" y1="638" x2="310" y2="638" stroke="#f0883e" stroke-width="2"/>
+  <text x="315" y="642" class="legend-text">HTTP/SSH Traffic</text>
+
+  <line x1="430" y1="638" x2="460" y2="638" stroke="#a371f7" stroke-width="2" stroke-dasharray="5 3"/>
+  <text x="465" y="642" class="legend-text">DB Traffic (:5432)</text>
+
+  <line x1="580" y1="638" x2="610" y2="638" stroke="#3fb950" stroke-width="2"/>
+  <text x="615" y="642" class="legend-text">NAT Outbound</text>
+
+  <line x1="720" y1="638" x2="750" y2="638" stroke="#f85149" stroke-width="2" stroke-dasharray="4 3"/>
+  <text x="755" y="642" class="legend-text">Security Group</text>
+
+  <text x="215" y="664" class="legend-text">Ports: SSH (22) · HTTP (80) · HTTPS (443) → EC2 | PostgreSQL (5432) → RDS from EC2 SG only</text>
+</svg>
+</body>
+</html>
