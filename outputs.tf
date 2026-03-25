@@ -40,5 +40,5 @@ output "ssh_command_web2" {
 output "rds_test_command" {
   description = "Command to test RDS connectivity from an EC2 instance"
   value       = "psql -h ${aws_db_instance.postgres.address} -U ${var.db_username} -d ${var.db_name}"
-  sensitive   = false
+  sensitive   = true
 }
